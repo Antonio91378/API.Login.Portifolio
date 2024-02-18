@@ -129,4 +129,33 @@ public class UserService : IUserService
         }
     }
 
+    public async Task<ControllerMessenger> RegisterUser(UserRegisterDto user)
+    {
+        try
+        {
+            var userWithSameEmail = await _userRepository.GetAsync(u => u.Email == user.Email);
+
+            if (userWithSameEmail is not null && userWithSameEmail.Count() > 0)
+            {
+                return _controllerMessenger.ReturnBadRequest400("The informed email is already taken.");
+            }
+
+            //I need add new filds in the user entity
+
+        }
+        catch (System.Exception ex)
+        {
+            return _controllerMessenger.ReturnInternalError500(ex.Message);
+        }
+    }
+
+    public Task<UserDto> LoginUser(UserLoginDto user)
+    {
+        throw new NotImplementedException();
+    }
+
+    Task<ControllerMessenger> IUserService.LoginUser(UserLoginDto user)
+    {
+        throw new NotImplementedException();
+    }
 }

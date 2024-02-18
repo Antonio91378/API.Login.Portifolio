@@ -2,10 +2,12 @@
 using API.Login.Domain.Dtos.Response;
 using API.Login.Domain.Interfaces.Email;
 using API.Login.Domain.Interfaces.Infra;
+using API.Login.Domain.Interfaces.Token;
 using API.Login.Infra;
 using API.Login.Infra.Contexts;
 using API.Login.Infra.Users;
 using API.Login.Service.Email;
+using API.Login.Service.Token;
 using API.Login.Service.Users;
 using API.Login.Utils;
 using Microsoft.EntityFrameworkCore;
@@ -13,6 +15,7 @@ using Microsoft.EntityFrameworkCore;
 var builder = WebApplication.CreateBuilder(args);
 
 AppConfiguration.Initialize(builder.Configuration);
+builder.Services.AddScoped<IJwtTokenService, JwtTokenService>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IEmailService, EmailService>();
 builder.Services.AddScoped<IUserService, UserService>();

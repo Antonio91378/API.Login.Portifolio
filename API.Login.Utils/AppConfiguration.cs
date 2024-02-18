@@ -28,4 +28,10 @@ public static class AppConfiguration
         var emailConfiguration = new EmailConfiguration(from, smtpServer, port, userName, passWord, displayName);
         return emailConfiguration;
     }
+
+    public static string GetTokenEncodeKey()
+    {
+        var key = _config.GetSection("Secrets:tokenEncodeKey").Value;
+        return key;
+    }
 }

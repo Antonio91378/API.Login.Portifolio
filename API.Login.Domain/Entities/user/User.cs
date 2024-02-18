@@ -9,7 +9,6 @@ public class User
 {
     [Key]
     [Required]
-    [JsonIgnore]
     [Column("UserId", TypeName = "integer")]
     public int UserId { get; set; }
 

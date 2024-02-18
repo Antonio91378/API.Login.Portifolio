@@ -11,9 +11,40 @@ public class ControllerMessenger
     }
 
     public int StatusCode { get; private set; }
-    public object ResponseObject { get; private set; }
-    private SuccessMessage? SuccessMessage { get; set; }
-    private ProblemDetails? Error { get; set; }
+    public object? ResponseObject { get; private set; }
+    private SuccessMessage SuccessMessage { get; set; }
+    private ProblemDetails Error { get; set; }
+    public ControllerMessenger ReturnSuccess(int statusCode, string message)
+    {
+        SuccessMessage.Status = statusCode;
+        SuccessMessage.Message = message;
+
+        StatusCode = (int)SuccessMessage.Status;
+        ResponseObject = SuccessMessage;
+
+        return this;
+    }
+
+    public ControllerMessenger ReturnSuccess(int statusCode, object returnObject)
+    {
+        StatusCode = statusCode;
+        ResponseObject = returnObject;
+
+        return this;
+    }
+
+    public ControllerMessenger ReturnBadRequest400(string? message)
+    {
+        Error.Detail = message ?? $"The server could not process the request";
+        Error.Status = 400;
+        Error.Title = "Bad Request";
+
+        StatusCode = (int)Error.Status;
+        ResponseObject = Error;
+
+        return this;
+    }
+
     public ControllerMessenger ReturnNotFound404(string element)
     {
         Error.Detail = $"The element {element} was not found";
@@ -38,6 +69,17 @@ public class ControllerMessenger
         return this;
     }
 
+    public ControllerMessenger ReturnInternalError500(string ex)
+    {
+        Error.Detail = $"{ex}";
+        Error.Status = 500;
+        Error.Title = "Internal Error";
+
+        StatusCode = (int)Error.Status;
+        ResponseObject = Error;
+
+        return this;
+    }
     public ControllerMessenger ReturnServiceUnavailable503()
     {
         Error.Detail = $"Was not possible to complete your request";
@@ -50,34 +92,5 @@ public class ControllerMessenger
         return this;
     }
 
-    public ControllerMessenger ReturnInternalError500(string ex)
-    {
-        Error.Detail = $"{ex}";
-        Error.Status = 500;
-        Error.Title = "Internal Error";
 
-        StatusCode = (int)Error.Status;
-        ResponseObject = Error;
-
-        return this;
-    }
-
-    public ControllerMessenger ReturnSuccess(int statusCode, string message)
-    {
-        SuccessMessage.Status = statusCode;
-        SuccessMessage.Message = message;
-
-        StatusCode = (int)SuccessMessage.Status;
-        ResponseObject = SuccessMessage;
-
-        return this;
-    }
-
-    public ControllerMessenger ReturnSuccess(int statusCode, object returnObject)
-    {
-        StatusCode = statusCode;
-        ResponseObject = returnObject;
-
-        return this;
-    }
 }
