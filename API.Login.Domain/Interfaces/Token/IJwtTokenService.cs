@@ -1,4 +1,4 @@
-using API.Login.Domain.Entities.User;
+using API.Login.Domain.Entities;
 
 namespace API.Login.Domain.Interfaces.Token;
 

@@ -1,7 +1,7 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
-using API.Login.Domain.Entities.User;
+using API.Login.Domain.Entities;
 using API.Login.Domain.Interfaces.Token;
 using API.Login.Utils;
 using Microsoft.IdentityModel.Tokens;
@@ -11,9 +11,9 @@ namespace API.Login.Service.Token;
 public class JwtTokenService : IJwtTokenService
 {
     private readonly SymmetricSecurityKey _key;
-    public JwtTokenService()
+    public JwtTokenService(IAppConfiguration appConfiguration)
     {
-        _key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(AppConfiguration.GetTokenEncodeKey()));
+        _key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(appConfiguration.GetTokenEncodeKey()));
     }
     public string CreateToken(User user)
     {

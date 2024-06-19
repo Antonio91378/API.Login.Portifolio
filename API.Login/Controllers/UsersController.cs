@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using API.Login.Domain.Dtos.Request;
-using API.Login.Domain.Entities.User;
+using API.Login.Domain.Entities;
 using API.Login.Domain.Interfaces.Email;
 using API.Login.Service.Users;
 using Microsoft.AspNetCore.Mvc;
@@ -44,7 +44,7 @@ public class UsersController : ControllerBase
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status503ServiceUnavailable)]
     public async Task<IActionResult> GetUsersAsync([FromQuery] int? id)
     {
-        var response = await _userService.GetAsync(id);
+        var response = await _userService.GetByIdAsync(id);
 
         return StatusCode(response.StatusCode, response.ResponseObject);
     }
@@ -82,19 +82,33 @@ public class UsersController : ControllerBase
     }
 
     [HttpPost]
-    [Route("/testeEmail")]
+    [Route("/RegisterUser")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status503ServiceUnavailable)]
-    public async Task<IActionResult> EnviarEmailAsync([FromBody] EmailRequest emailRequest)
+    public async Task<IActionResult> RegisterUser([FromBody][Required] UserRegisterDto user)
     {
-        var response = await _emailService.SendEmailAsync(emailRequest);
+        var response = await _userService.RegisterUserAsync(user);
 
         return StatusCode(response.StatusCode, response.ResponseObject);
     }
 
+    [HttpPost]
+    [Route("/ConfirmUserRegistration")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status503ServiceUnavailable)]
+    public async Task<IActionResult> ConfirmUserRegistration([FromBody][Required] UserRegisterConfirmationDto user)
+    {
+        var response = await _userService.ConfirmUserRegistrationAsync(user);
+
+        return StatusCode(response.StatusCode, response.ResponseObject);
+    }
 
 }

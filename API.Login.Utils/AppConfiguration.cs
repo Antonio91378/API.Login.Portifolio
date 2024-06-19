@@ -1,21 +1,27 @@
 using Microsoft.Extensions.Configuration;
 
 namespace API.Login.Utils;
-
-public static class AppConfiguration
+public interface IAppConfiguration
 {
-    public static IConfiguration _config;
-    public static void Initialize(IConfiguration Configuration)
+    string GetSqlLiteConnectionString();
+    EmailConfiguration GetEmailConfiguration();
+    string GetTokenEncodeKey();
+}
+public class AppConfiguration : IAppConfiguration
+{
+    private readonly IConfiguration _config;
+    public AppConfiguration(IConfiguration configuration)
     {
-        _config = Configuration;
+        _config = configuration;
     }
-    public static string GetSqlLiteConnectionString()
+    
+    public string GetSqlLiteConnectionString()
     {
         var cn = _config.GetSection("ConnectionStrings:SqlLite").Value ?? String.Empty;
         return cn;
     }
 
-    public static EmailConfiguration GetEmailConfiguration()
+    public EmailConfiguration GetEmailConfiguration()
     {
 
         string from = _config.GetSection("EmailConfiguration:From").Value ?? String.Empty;
@@ -29,9 +35,9 @@ public static class AppConfiguration
         return emailConfiguration;
     }
 
-    public static string GetTokenEncodeKey()
+    public string GetTokenEncodeKey()
     {
-        var key = _config.GetSection("Secrets:tokenEncodeKey").Value;
+        var key = _config.GetSection("Secrets:tokenEncodeKey").Value ?? String.Empty;
         return key;
     }
 }

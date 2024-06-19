@@ -24,4 +24,24 @@ public class EmailConfiguration
     public string UserName { get; set; }
     public string Password { get; set; }
     public string DisplayName { get; set; }
+
+    public static string ReturnRegisterConfirmationHtml()
+    {
+        return @"
+
+                <!DOCTYPE html>
+                <html lang=""en"">
+                  <head>
+                    <meta charset=""UTF-8"" />
+                    <meta name=""viewport"" content=""width=device-width, initial-scale=1.0"" />
+                    <title>Document</title>
+                  </head>
+                  <body>
+                    <p>To confirm your email, click <a href=""{link}"">here</a></p>
+                    <p>If it didn't work, copy and paste the link {link}</p>
+                  </body>
+                </html>
+                
+                ";
+    }
 }

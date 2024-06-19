@@ -1,21 +1,20 @@
-using System.Net;
-using System.Net.Mail;
 using API.Login.Domain.Dtos.Request;
 using API.Login.Domain.Dtos.Response;
 using API.Login.Domain.Interfaces.Email;
 using API.Login.Utils;
+using System.Net;
+using System.Net.Mail;
 
 namespace API.Login.Service.Email;
 
 public class EmailService : IEmailService
 {
     private readonly EmailConfiguration _mailSettings;
-    private readonly ControllerMessenger _controllerMessenger;
+    private readonly ControllerMessenger _controllerMessenger = new();
 
-    public EmailService(ControllerMessenger controllerMessenger)
+    public EmailService(IAppConfiguration appConfiguration)
     {
-        _mailSettings = AppConfiguration.GetEmailConfiguration();
-        _controllerMessenger = controllerMessenger;
+        _mailSettings = appConfiguration.GetEmailConfiguration();
     }
 
     public async Task<ControllerMessenger> SendEmailAsync(EmailRequest mailRequest)

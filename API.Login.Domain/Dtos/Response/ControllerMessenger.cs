@@ -1,15 +1,16 @@
+using API.Login.Domain.Interfaces.Service;
 using Microsoft.AspNetCore.Mvc;
 
 namespace API.Login.Domain.Dtos.Response;
 
-public class ControllerMessenger
+public class ControllerMessenger : IControllerMessenger
 {
     public ControllerMessenger()
     {
         SuccessMessage = new();
         Error = new();
     }
-
+    public bool ErrorTriggered { get; private set; }
     public int StatusCode { get; private set; }
     public object? ResponseObject { get; private set; }
     private SuccessMessage SuccessMessage { get; set; }
@@ -41,6 +42,7 @@ public class ControllerMessenger
 
         StatusCode = (int)Error.Status;
         ResponseObject = Error;
+        ErrorTriggered = true;
 
         return this;
     }
@@ -53,6 +55,7 @@ public class ControllerMessenger
 
         StatusCode = (int)Error.Status;
         ResponseObject = Error;
+        ErrorTriggered = true;
 
         return this;
     }
@@ -65,6 +68,7 @@ public class ControllerMessenger
 
         StatusCode = (int)Error.Status;
         ResponseObject = Error;
+        ErrorTriggered = true;
 
         return this;
     }
@@ -77,6 +81,7 @@ public class ControllerMessenger
 
         StatusCode = (int)Error.Status;
         ResponseObject = Error;
+        ErrorTriggered = true;
 
         return this;
     }
@@ -88,6 +93,7 @@ public class ControllerMessenger
 
         StatusCode = (int)Error.Status;
         ResponseObject = Error;
+        ErrorTriggered = true;
 
         return this;
     }

@@ -1,8 +1,5 @@
-using API.Login.Domain.Dtos.Request;
-using API.Login.Domain.Dtos.Response;
-using API.Login.Domain.Entities.User;
+using API.Login.Domain.Entities;
 using API.Login.Infra.Contexts;
-using Microsoft.EntityFrameworkCore;
 
 namespace API.Login.Infra.Users;
 

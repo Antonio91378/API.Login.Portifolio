@@ -1,22 +1,40 @@
-namespace API.Login.Service.Users;
-
-using System;
-using System.Threading.Tasks;
 using API.Login.Domain.Dtos.Request;
 using API.Login.Domain.Dtos.Response;
-using API.Login.Domain.Entities.User;
+using API.Login.Domain.Entities;
+using API.Login.Domain.Interfaces.Email;
 using API.Login.Infra.Users;
+using API.Login.Utils;
+
+namespace API.Login.Service.Users;
 
 public class UserService : IUserService
 {
+    private readonly ControllerMessenger _controllerMessenger = new();
     private readonly IUserRepository _userRepository;
-    private readonly ControllerMessenger _controllerMessenger;
+    private readonly IEmailService _emailService;
 
-    public UserService(IUserRepository userRepository, ControllerMessenger controllerMessenger)
+    public UserService(
+        IUserRepository userRepository,
+        IEmailService emailService)
     {
         _userRepository = userRepository;
-        _controllerMessenger = controllerMessenger;
+        _emailService = emailService;
+    }
 
+    public async Task<ControllerMessenger> ConfirmUserRegistrationAsync(UserRegisterConfirmationDto user)
+    {
+        try
+        {
+            var existentUser = await _userRepository.GetAsync(x => x.EmailHash == user.EmailHash);
+            if (existentUser is null)
+                return _controllerMessenger.ReturnNotFound404("User not found");
+
+            return await SendRegisterConfirmationEmail(existentUser.Email);
+        }
+        catch (System.Exception ex)
+        {
+            return _controllerMessenger.ReturnInternalError500(ex.Message);
+        }
     }
 
     public async Task<ControllerMessenger> AddAsync(User user)
@@ -36,14 +54,14 @@ public class UserService : IUserService
         }
     }
 
-    public async Task<ControllerMessenger> GetAsync(int? id)
+    public async Task<ControllerMessenger> GetByIdAsync(int? id)
     {
         try
         {
             var usersFound = new List<User>();
             if (id is null)
             {
-                usersFound = await _userRepository.GetAsync(null);
+                usersFound = await _userRepository.GetListAsync(null);
             }
             else
             {
@@ -67,6 +85,7 @@ public class UserService : IUserService
         }
     }
 
+    //Ajustar após as atualizações de password
     public async Task<ControllerMessenger> UpdateAsync(int id, object userUpdated)
     {
         try
@@ -84,9 +103,9 @@ public class UserService : IUserService
                 ? userSerialized.NewEmail
                 : userInformed.Email;
 
-            userInformed.PassWord = (userSerialized.NewPassWord is not null)
-                ? userSerialized.NewPassWord
-                : userInformed.PassWord;
+            userInformed.PassWordHash = (userSerialized.NewPassWord is not null)
+                ? null
+                : userInformed.PassWordHash;
 
             await _userRepository.UpdateAsync(userInformed);
             return _controllerMessenger.ReturnSuccess(200, "User Updated.");
@@ -129,19 +148,42 @@ public class UserService : IUserService
         }
     }
 
-    public async Task<ControllerMessenger> RegisterUser(UserRegisterDto user)
+    public async Task<ControllerMessenger> RegisterUserAsync(UserRegisterDto user)
     {
         try
         {
             var userWithSameEmail = await _userRepository.GetAsync(u => u.Email == user.Email);
 
-            if (userWithSameEmail is not null && userWithSameEmail.Count() > 0)
+            if (userWithSameEmail is not null)
             {
                 return _controllerMessenger.ReturnBadRequest400("The informed email is already taken.");
             }
 
-            //I need add new filds in the user entity
+            user.InitializeComputedPassWordAndHash();
+            if (user.PassWordHash is null)
+                return _controllerMessenger.ReturnInternalError500("Intern Error");
 
+            if (user.PassWordSalt is null)
+                return _controllerMessenger.ReturnInternalError500("Intern Error");
+
+
+            var transaction = await _userRepository.BeginTransactionAsync();
+
+            await _userRepository.AddAsync(new User(
+                user.UserName,
+                user.Email,
+                user.PassWordHash,
+                user.PassWordSalt));
+
+            var emailResult = await SendRegisterConfirmationEmail(user.Email);
+            if (emailResult.ErrorTriggered)
+            {
+                _userRepository.Rollback(transaction); // Rollback transaction
+                return emailResult;
+            }
+
+            await _userRepository.CommitAsync(transaction);// Commit transaction
+            return _controllerMessenger.ReturnSuccess(201, new SuccessMessage { Status = 201, Message = "Objeto criado com sucesso." });
         }
         catch (System.Exception ex)
         {
@@ -149,13 +191,19 @@ public class UserService : IUserService
         }
     }
 
-    public Task<UserDto> LoginUser(UserLoginDto user)
+    private async Task<ControllerMessenger> SendRegisterConfirmationEmail(string userEmail)
     {
-        throw new NotImplementedException();
+        //Criar o link após o front estar pronto
+        var template = EmailConfiguration.ReturnRegisterConfirmationHtml();
+        var emailRequest = EmailRequest.CreateDefaultObject(userEmail, "User Verification", template);
+        var retornoEmail = await _emailService.SendEmailAsync(emailRequest);
+        return retornoEmail;
     }
 
-    Task<ControllerMessenger> IUserService.LoginUser(UserLoginDto user)
-    {
-        throw new NotImplementedException();
-    }
+    // public async Task<ControllerMessenger> LoginUser(UserLoginDto user)
+    // {
+    //     throw new NotImplementedException();
+    // }
+
+
 }
