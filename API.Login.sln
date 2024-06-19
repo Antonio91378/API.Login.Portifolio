@@ -13,6 +13,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "API.Login.Domain", "API.Log
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "API.Login.Infra", "API.Login.Infra\API.Login.Infra.csproj", "{EFB0796B-4E0F-4635-8F34-09BC2EEEC03C}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "API.Login.Service.Tests", "API.Login.Service.Tests\API.Login.Service.Tests.csproj", "{8A40B119-DA81-4731-B2E9-F5732B9F962B}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -42,5 +44,9 @@ Global
 		{EFB0796B-4E0F-4635-8F34-09BC2EEEC03C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{EFB0796B-4E0F-4635-8F34-09BC2EEEC03C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{EFB0796B-4E0F-4635-8F34-09BC2EEEC03C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8A40B119-DA81-4731-B2E9-F5732B9F962B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8A40B119-DA81-4731-B2E9-F5732B9F962B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8A40B119-DA81-4731-B2E9-F5732B9F962B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8A40B119-DA81-4731-B2E9-F5732B9F962B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

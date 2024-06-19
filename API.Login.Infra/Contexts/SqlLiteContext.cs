@@ -1,4 +1,4 @@
-using API.Login.Domain.Entities.User;
+using API.Login.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 
 namespace API.Login.Infra.Contexts;

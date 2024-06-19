@@ -12,7 +12,7 @@
     <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="8.0.1" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\API.Login.Utils\API.Login.Utils.csproj" />
     <ProjectReference Include="..\API.Login.Domain\API.Login.Domain.csproj" />
+    <ProjectReference Include="..\API.Login.Utils\API.Login.Utils.csproj" />
   </ItemGroup>
 </Project>

@@ -1,6 +1,7 @@
 using System.Linq.Expressions;
 using API.Login.Domain.Interfaces.Infra;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage;
 
 namespace API.Login.Infra;
 
@@ -16,6 +17,21 @@ public class GenericRepository<TEntity, TContext> : IGenericRepository<TEntity, 
         _dbSet = _context.Set<TEntity>();
     }
 
+    public async Task<IDbContextTransaction> BeginTransactionAsync()
+    {
+        return await _context.Database.BeginTransactionAsync();
+    }
+
+    public async Task CommitAsync(IDbContextTransaction transaction)
+    {
+        await transaction.CommitAsync();
+    }
+
+    public void Rollback(IDbContextTransaction transaction)
+    {
+        transaction.Rollback();
+    }
+
     public virtual async Task AddAsync(TEntity entity)
     {
         await _dbSet.AddAsync(entity);
@@ -28,7 +44,7 @@ public class GenericRepository<TEntity, TContext> : IGenericRepository<TEntity, 
         await _context.SaveChangesAsync();
     }
 
-    public virtual async Task<List<TEntity>?> GetAsync(Expression<Func<TEntity, bool>>? filter)
+    public virtual async Task<List<TEntity>?> GetListAsync(Expression<Func<TEntity, bool>>? filter)
     {
         var query = _dbSet.AsQueryable();
 
@@ -36,6 +52,16 @@ public class GenericRepository<TEntity, TContext> : IGenericRepository<TEntity, 
             query = query.Where(filter).AsNoTracking();
 
         return await query.ToListAsync();
+    }
+
+    public virtual async Task<TEntity?> GetAsync(Expression<Func<TEntity, bool>>? filter)
+    {
+        var query = _dbSet.AsQueryable();
+
+        if (filter is not null)
+            query = query.Where(filter).AsNoTracking();
+
+        return await query.FirstOrDefaultAsync();
     }
 
     public virtual async Task<TEntity?> GetByIdAsync(int id)
@@ -51,7 +77,7 @@ public class GenericRepository<TEntity, TContext> : IGenericRepository<TEntity, 
 
     public virtual async Task DeleteAllAsync()
     {
-        var allRecords = await GetAsync(null);
+        var allRecords = await GetListAsync(null);
         if (allRecords is not null && allRecords.Count() > 0)
         {
             _context.RemoveRange(allRecords);
