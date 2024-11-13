@@ -17,13 +17,15 @@ namespace API.Login.Service.Tests.Users
     {
         private readonly Mock<IUserRepository> _userRepositoryMock;
         private readonly Mock<IEmailService> _emailServiceMock;
+        private readonly Mock<IUserRegistrationEmail> _userRegistrationEmail;
         private readonly UserService _userService;
 
         public UserServiceUnitTests()
         {
             _userRepositoryMock = new Mock<IUserRepository>();
             _emailServiceMock = new Mock<IEmailService>();
-            _userService = new UserService(_userRepositoryMock.Object, _emailServiceMock.Object);
+            _userRegistrationEmail = new Mock<IUserRegistrationEmail>();
+            _userService = new UserService(_userRepositoryMock.Object, _emailServiceMock.Object, _userRegistrationEmail.Object);
         }
 
         [Fact]

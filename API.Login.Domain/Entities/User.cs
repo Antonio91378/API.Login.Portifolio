@@ -9,11 +9,13 @@ namespace API.Login.Domain.Entities
         public User(
             string userName,
             string email,
+            string emailHash,
             byte[] passWordSalt,
             byte[] passWordHash)
         {
             UserName = userName;
             Email = email;
+            EmailHash = emailHash;
             PassWordSalt = passWordSalt;
             PassWordHash = passWordHash;
             Logado = 0;
@@ -27,7 +29,7 @@ namespace API.Login.Domain.Entities
 
         [Column("EmailHash", TypeName = "varchar")]
         [MaxLength]
-        public string? EmailHash { get; set; }
+        public string EmailHash { get; set; }
 
         [Required]
         [Column("UserName", TypeName = "varchar")]
@@ -59,6 +61,5 @@ namespace API.Login.Domain.Entities
         [Column("SessionJwt", TypeName = "varchar")]
         [MaxLength]
         public string? SessionJwt { get; set; }
-
     }
 }

@@ -3,7 +3,7 @@ using API.Login.Domain.Dtos.Response;
 using API.Login.Domain.Entities;
 using API.Login.Domain.Interfaces.Email;
 using API.Login.Infra.Users;
-using API.Login.Utils;
+using API.Login.Utils.Email;
 
 namespace API.Login.Service.Users;
 
@@ -12,13 +12,16 @@ public class UserService : IUserService
     private readonly ControllerMessenger _controllerMessenger = new();
     private readonly IUserRepository _userRepository;
     private readonly IEmailService _emailService;
+    private readonly IUserRegistrationEmail _userRegistrationEmail;
 
     public UserService(
         IUserRepository userRepository,
-        IEmailService emailService)
+        IEmailService emailService,
+        IUserRegistrationEmail userRegistrationEmail)
     {
         _userRepository = userRepository;
         _emailService = emailService;
+        _userRegistrationEmail = userRegistrationEmail;
     }
 
     public async Task<ControllerMessenger> ConfirmUserRegistrationAsync(UserRegisterConfirmationDto user)
@@ -27,9 +30,10 @@ public class UserService : IUserService
         {
             var existentUser = await _userRepository.GetAsync(x => x.EmailHash == user.EmailHash);
             if (existentUser is null)
-                return _controllerMessenger.ReturnNotFound404("User not found");
+                return _controllerMessenger.ReturnNotFound404();
 
-            return await SendRegisterConfirmationEmail(existentUser.Email);
+            //return await SendRegisterConfirmationEmail(existentUser.Email);
+            return null;
         }
         catch (System.Exception ex)
         {
@@ -155,9 +159,7 @@ public class UserService : IUserService
             var userWithSameEmail = await _userRepository.GetAsync(u => u.Email == user.Email);
 
             if (userWithSameEmail is not null)
-            {
                 return _controllerMessenger.ReturnBadRequest400("The informed email is already taken.");
-            }
 
             user.InitializeComputedPassWordAndHash();
             if (user.PassWordHash is null)
@@ -166,24 +168,28 @@ public class UserService : IUserService
             if (user.PassWordSalt is null)
                 return _controllerMessenger.ReturnInternalError500("Intern Error");
 
-
             var transaction = await _userRepository.BeginTransactionAsync();
 
             await _userRepository.AddAsync(new User(
                 user.UserName,
                 user.Email,
+                user.EmailHash,
                 user.PassWordHash,
                 user.PassWordSalt));
 
-            var emailResult = await SendRegisterConfirmationEmail(user.Email);
+            var emailResult = await SendRegisterConfirmationEmail(user.Email, user.EmailHash);
             if (emailResult.ErrorTriggered)
             {
-                _userRepository.Rollback(transaction); // Rollback transaction
+                _userRepository.Rollback(transaction);
                 return emailResult;
             }
 
-            await _userRepository.CommitAsync(transaction);// Commit transaction
-            return _controllerMessenger.ReturnSuccess(201, new SuccessMessage { Status = 201, Message = "Objeto criado com sucesso." });
+            await _userRepository.CommitAsync(transaction);
+            return _controllerMessenger.ReturnSuccess(201, new SuccessMessage 
+            {
+                Status = 201,
+                Message = "Objeto criado com sucesso." }
+            );
         }
         catch (System.Exception ex)
         {
@@ -191,10 +197,9 @@ public class UserService : IUserService
         }
     }
 
-    private async Task<ControllerMessenger> SendRegisterConfirmationEmail(string userEmail)
+    private async Task<ControllerMessenger> SendRegisterConfirmationEmail(string userEmail, string emailHash)
     {
-        //Criar o link após o front estar pronto
-        var template = EmailConfiguration.ReturnRegisterConfirmationHtml();
+        var template = _userRegistrationEmail.ReturnRegisterConfirmationHtml(emailHash);
         var emailRequest = EmailRequest.CreateDefaultObject(userEmail, "User Verification", template);
         var retornoEmail = await _emailService.SendEmailAsync(emailRequest);
         return retornoEmail;

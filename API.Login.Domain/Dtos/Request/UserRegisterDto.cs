@@ -5,54 +5,64 @@ using System.Text.Json.Serialization;
 
 namespace API.Login.Domain.Dtos.Request;
 
-public class UserRegisterDto(
-    string userName,
-    string email,
-    string passWord,
-    string confirmPassWord,
-    DateTime birthDay,
-    string phone)
+public class UserRegisterDto
 {
-    [Required]
-    [MaxLength(200)]
-    public string UserName { get; set; } = userName;
+    public UserRegisterDto(
+        string userName,
+        string email,
+        string passWord,
+        string confirmPassWord,
+        DateTime birthDay,
+        string phone)
+    {
+        UserName = userName;
+        Email = email;
+        PassWord = passWord;
+        ConfirmPassWord = confirmPassWord;
+        BirthDay = birthDay;
+        Phone = phone;
+        EmailHash = Guid.NewGuid().ToString();
+    }
 
     [Required]
     [MaxLength(200)]
-    public string Email { get; set; } = email;
+    public string UserName { get; set; }
+
+    [Required]
+    [MaxLength(200)]
+    public string Email { get; set; }
 
     [Required]
     [MaxLength(20)]
     [DataType(DataType.Password)]
     [Display(Name = "Your PassWord")]
-    public string PassWord { get; set; } = passWord;
+    public string PassWord { get; set; }
 
     [Required]
     [MaxLength(20)]
     [DataType(DataType.Password)]
     [Compare("PassWord")]
-    public string ConfirmPassWord { get; set; } = confirmPassWord;
-
+    public string ConfirmPassWord { get; set; }
 
     [Required]
     [DataType(DataType.Date)]
-    public DateTime BirthDay { get; set; } = birthDay;
+    public DateTime BirthDay { get; set; }
 
     [Required]
     [DataType(DataType.PhoneNumber)]
     [RegularExpression("^[0-9]{11}$")]
     [StringLength(32)]
-    public string Phone { get; set; } = phone;
+    public string Phone { get; set; }
 
     [JsonIgnore]
-    public byte[]? EmailHash { get; set; }
-
+    public string EmailHash { get; set; }
 
     [JsonIgnore]
     public byte[]? PassWordHash { get; set; }
 
     [JsonIgnore]
     public byte[]? PassWordSalt { get; set; }
+
     public void InitializeComputedPassWordAndHash()
     {
         using var hmac = new HMACSHA512();

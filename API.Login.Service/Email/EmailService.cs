@@ -1,7 +1,10 @@
 using API.Login.Domain.Dtos.Request;
 using API.Login.Domain.Dtos.Response;
 using API.Login.Domain.Interfaces.Email;
+using API.Login.Domain.Interfaces.Service;
 using API.Login.Utils;
+using API.Login.Utils.Email;
+using Microsoft.Extensions.Configuration;
 using System.Net;
 using System.Net.Mail;
 
@@ -10,11 +13,14 @@ namespace API.Login.Service.Email;
 public class EmailService : IEmailService
 {
     private readonly EmailConfiguration _mailSettings;
-    private readonly ControllerMessenger _controllerMessenger = new();
+    private readonly IControllerMessenger _controllerMessenger;
 
-    public EmailService(IAppConfiguration appConfiguration)
+    public EmailService(
+        IAppConfiguration appConfiguration,
+        IControllerMessenger controllerMessenger)
     {
         _mailSettings = appConfiguration.GetEmailConfiguration();
+        _controllerMessenger = controllerMessenger;
     }
 
     public async Task<ControllerMessenger> SendEmailAsync(EmailRequest mailRequest)

@@ -1,15 +1,16 @@
 <Project Sdk="Microsoft.NET.Sdk">
+
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+
     <IsPackable>false</IsPackable>
     <IsTestProject>true</IsTestProject>
   </PropertyGroup>
+
   <ItemGroup>
     <PackageReference Include="AutoBogus" Version="2.13.1" />
-    <PackageReference Include="Microsoft.Extensions.Configuration.FileExtensions" Version="8.0.0" />
-    <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="8.0.0" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.6.0" />
     <PackageReference Include="Moq" Version="4.20.70" />
     <PackageReference Include="xunit" Version="2.4.2" />
@@ -22,8 +23,11 @@
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
   </ItemGroup>
+
   <ItemGroup>
-    <ProjectReference Include="..\API.Login.Service\API.Login.Service.csproj" />
     <ProjectReference Include="..\API.Login.Domain\API.Login.Domain.csproj" />
+    <ProjectReference Include="..\API.Login.Infra\API.Login.Infra.csproj" />
+    <ProjectReference Include="..\API.Login.Service\API.Login.Service.csproj" />
   </ItemGroup>
+
 </Project>
